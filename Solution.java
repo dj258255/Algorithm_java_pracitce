@@ -4,36 +4,44 @@ public class Solution {
     public static void main(String[] args) {
         Scanner scan = new Scanner(System.in);
         int T = scan.nextInt();
-        for(int t = 1; t <= T; t++) {
-
+        for (int t = 1; t <= T; t++) {
             int N = scan.nextInt();
-            int M = scan.nextInt();
-
-            int[] A = new int[N];
-            int[] B = new int[M];
-
-            for(int i = 0; i < N; i++) {
-                A[i] = scan.nextInt();
-            }
-            for(int i = 0; i < M; i++) {
-                B[i] = scan.nextInt();
-            }
-            int[] longer = N >=M ? A : B;
-            int[] shorter = N < M ? A : B;
-
-            int max = Integer.MIN_VALUE;
-
-            for(int i = 0; i <= longer.length - shorter.length; i++){
-                int answer =0;
-                for(int j = 0; j < shorter.length; j++) {
-                    answer += shorter[j] * longer[i+j];
+            int[][] arr = new int[N][N];
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    arr[i][j] = scan.nextInt();
                 }
-                max = Integer.max(answer, max);
             }
 
-            System.out.println("#" + t + " " + max);
+            int[][] rotated90 = rotate90(arr, N);
+            int[][] rotated180 = rotate90(rotated90, N);
+            int[][] rotated270 = rotate90(rotated180, N);
 
+            System.out.println("#" + t);
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    System.out.print(rotated90[i][j]);
+                }
+                System.out.print(" ");
+                for (int j = 0; j < N; j++) {
+                    System.out.print(rotated180[i][j]);
+                }
+                System.out.print(" ");
+                for (int j = 0; j < N; j++) {
+                    System.out.print(rotated270[i][j]);
+                }
+                System.out.println();
+            }
         }
+    }
 
+    private static int[][] rotate90(int[][] arr, int N) {
+        int[][] rotated = new int[N][N];
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                rotated[j][N - 1 - i] = arr[i][j];
+            }
+        }
+        return rotated;
     }
 }
