@@ -1,67 +1,46 @@
 import java.util.Scanner;
 
 public class Solution {
+    static int answer;
+    static int B; //선반 높이
+    static int[] H; //직원들의 키
+
     public static void main(String[] args) {
         Scanner scan = new Scanner(System.in);
-        int T = scan.nextInt();
+        int tc = scan.nextInt();
 
-        for (int t = 1; t <= T; t++) {
-            int N = scan.nextInt();
-            int M = scan.nextInt();//스프레이 세기
+        for (int t = 1; t <= tc; t++) {
+            int N = scan.nextInt(); // 직원 수
+            B = scan.nextInt(); // 선반 높이
+            H = new int[N]; // 직원들의 키
 
-            int[][] map = new int[N][N];
             for (int i = 0; i < N; i++) {
-                for (int j = 0; j < N; j++) {
-                    map[i][j] = scan.nextInt();
-                }
+                H[i] = scan.nextInt();
             }
 
-            int max = Math.max(plus(map, N, M), minus(map, N, M));
-            System.out.println("#" + t + " " + max);
+            answer = Integer.MAX_VALUE;
+            find(0, 0);
+
+            System.out.println("#" + t + " " + (answer - B));
         }
     }
 
-    //+형태
-    private static int plus(int[][] map, int N, int M) {
-        int maxFlies = 0; //최대 파리 수
-
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                int flies = map[i][j]; //파리수
-
-                for (int k = 1; k < M; k++) {
-                    if (i - k >= 0) flies += map[i - k][j]; // 위쪽
-                    if (i + k < N) flies += map[i + k][j]; // 아래쪽
-                    if (j - k >= 0) flies += map[i][j - k]; // 왼쪽
-                    if (j + k < N) flies += map[i][j + k]; // 오른쪽
-                }
-
-                maxFlies = Math.max(maxFlies, flies);
-            }
+    //백트래킹으로 부분 집합 탐색
+    static void find(int index, int sum) {
+        if (sum >= B) {
+            answer = Math.min(answer, sum);
+            return;
         }
 
-        return maxFlies;
-    }
-
-    //X형태
-    private static int minus(int[][] map, int N, int M) {
-        int maxFlies = 0;
-
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                int flies = map[i][j];
-
-                for (int k = 1; k < M; k++) {
-                    if (i - k >= 0 && j - k >= 0) flies += map[i - k][j - k]; // 좌상단
-                    if (i - k >= 0 && j + k < N) flies += map[i - k][j + k]; // 우상단
-                    if (i + k < N && j - k >= 0) flies += map[i + k][j - k]; // 좌하단
-                    if (i + k < N && j + k < N) flies += map[i + k][j + k]; // 우하단
-                }
-
-                maxFlies = Math.max(maxFlies, flies);
-            }
+        if (index == H.length) { //배열의 끝까지 탐색한 경우
+            return;
         }
 
-        return maxFlies;
+        // 현재 index 포함하지 않는 경우
+        find(index + 1, sum);
+
+        // 현재 index 포함하는 경우
+        find(index + 1, sum + H[index]);
     }
 }
+
