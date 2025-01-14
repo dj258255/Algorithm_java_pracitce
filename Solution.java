@@ -1,27 +1,60 @@
 import java.util.Scanner;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Solution {
+    static String number;
+    static int n;
+    static int maxValue;
+    static Set<String> visited;
+
     public static void main(String[] args) {
         Scanner scan = new Scanner(System.in);
-        int t = scan.nextInt(); // 테스트 케이스 수
 
-        for (int T = 1; T <= t; T++) {
-            long N = scan.nextInt(); // 타일 수
-            long A = scan.nextInt(); // 가중치 A
-            long B = scan.nextInt(); // 가중치 B
+        int T = scan.nextInt();
 
-            long minCost = Integer.MAX_VALUE; // 최소 비용 초기화
+        for (int t = 1; t <= T; t++) {
+            number = scan.next();
+            n = scan.nextInt();
+            maxValue = 0;
+            visited = new HashSet<>();
 
-            // 가능한 R, C 조합 탐색
-            for (int R = 1; R <= N; R++) {
-                for (int C = 1; C <= N / R; C++) { // R * C <= N을 만족해야 함
-                    long cost = A * Math.abs(R - C) + B * (N - R * C);
-                    minCost = Math.min(minCost, cost); // 최소 비용 갱신
-                }
-            }
+            find(0, number);
 
-            // 결과 출력
-            System.out.println("#" + T + " " + minCost);
+            System.out.println("#" + t + " " + maxValue);
         }
+    }
+
+    // DFS
+    public static void find(int depth, String current) {
+        if (depth == n) { // 교환 횟수에 도달한 경우
+            maxValue = Math.max(maxValue, Integer.parseInt(current));
+            return;
+        }
+
+        // 이미 방문한 상태라면 중단 (중복 방지)
+        String state = depth + current;
+        if (visited.contains(state)) return;
+        visited.add(state);
+        
+        // 모든 가능한 위치 쌍(i, j)에 대해 교환 시도
+        for (int i = 0; i < current.length(); i++) {
+            for (int j = i + 1; j < current.length(); j++) {
+                // 교환 후 새로운 문자열 생성
+                String swapped = swap(current, i, j);
+
+                // 다음 단계 탐색
+                find(depth + 1, swapped);
+            }
+        }
+    }
+
+    // 두 위치의 숫자를 교환하는 메서드
+    public static String swap(String str, int i, int j) {
+        char[] chars = str.toCharArray();
+        char temp = chars[i];
+        chars[i] = chars[j];
+        chars[j] = temp;
+        return new String(chars);
     }
 }
