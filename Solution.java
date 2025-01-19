@@ -1,29 +1,48 @@
 import java.util.Scanner;
-import java.util.HashSet;
-import java.util.ArrayList;
-import java.util.Collections;
 
 public class Solution {
     public static void main(String[] args) {
         Scanner scan = new Scanner(System.in);
-        int n = scan.nextInt();
-        HashSet<String> employees = new HashSet<>();
 
-        for (int i = 0; i < n; i++) {
-            String name = scan.next();
-            String action = scan.next();
+        for (int T = 1; T <= 10; T++) {
+            int N = scan.nextInt(); // 찾아야 할 회문의 길이
+            char[][] map = new char[8][8];
 
-            if (action.equals("enter")) {
-                employees.add(name);
-            } else if (action.equals("leave")) {
-                employees.remove(name);
+            for (int i = 0; i < 8; i++) {
+                String temp = scan.next();
+                for (int j = 0; j < 8; j++) {
+                    map[i][j] = temp.charAt(j);
+                }
             }
-        }
-        ArrayList<String> result = new ArrayList<>(employees);
-        Collections.sort(result, Collections.reverseOrder());
 
-        for (String name : result) {
-            System.out.println(name);
+            int answer = 0;
+
+            // 가로 검사
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j <= 8 - N; j++) { // 유효 범위: j + N - 1 < 8
+                    StringBuilder str = new StringBuilder();
+                    for (int k = 0; k < N; k++) {
+                        str.append(map[i][j + k]);
+                    }
+                    if (str.toString().equals(str.reverse().toString())) {
+                        answer++;
+                    }
+                }
+            }
+
+            // 세로 검사
+            for (int j = 0; j < 8; j++) {
+                for (int i = 0; i <= 8 - N; i++) { // 유효 범위: i + N - 1 < 8
+                    StringBuilder str = new StringBuilder();
+                    for (int k = 0; k < N; k++) {
+                        str.append(map[i + k][j]);
+                    }
+                    if (str.toString().equals(str.reverse().toString())) {
+                        answer++;
+                    }
+                }
+            }
+            System.out.println("#" + T + " " + answer);
         }
     }
 }
