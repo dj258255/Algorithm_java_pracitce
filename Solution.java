@@ -3,46 +3,51 @@ import java.util.Scanner;
 public class Solution {
     public static void main(String[] args) {
         Scanner scan = new Scanner(System.in);
-
         for (int T = 1; T <= 10; T++) {
-            int N = scan.nextInt(); // 찾아야 할 회문의 길이
-            char[][] map = new char[8][8];
+            int t = scan.nextInt();
+            char[][] map = new char[100][100];
 
-            for (int i = 0; i < 8; i++) {
+            // 2차원 배열 입력
+            for (int i = 0; i < 100; i++) {
                 String temp = scan.next();
-                for (int j = 0; j < 8; j++) {
+                for (int j = 0; j < 100; j++) {
                     map[i][j] = temp.charAt(j);
                 }
             }
 
-            int answer = 0;
+            int max = 0;
 
-            // 가로 검사
-            for (int i = 0; i < 8; i++) {
-                for (int j = 0; j <= 8 - N; j++) { // 유효 범위: j + N - 1 < 8
-                    StringBuilder str = new StringBuilder();
-                    for (int k = 0; k < N; k++) {
-                        str.append(map[i][j + k]);
-                    }
-                    if (str.toString().equals(str.reverse().toString())) {
-                        answer++;
+            // 행 방향 회문 확인
+            for (int i = 0; i < 100; i++) {
+                for (int j = 0; j < 100; j++) {
+                    for (int k = 1; j + k <= 100; k++) {
+                        StringBuilder str = new StringBuilder();
+                        for (int l = 0; l < k; l++) {
+                            str.append(map[i][j + l]);
+                        }
+                        if (str.toString().equals(str.reverse().toString())) {
+                            max = Math.max(max, k);
+                        }
                     }
                 }
             }
 
-            // 세로 검사
-            for (int j = 0; j < 8; j++) {
-                for (int i = 0; i <= 8 - N; i++) { // 유효 범위: i + N - 1 < 8
-                    StringBuilder str = new StringBuilder();
-                    for (int k = 0; k < N; k++) {
-                        str.append(map[i + k][j]);
-                    }
-                    if (str.toString().equals(str.reverse().toString())) {
-                        answer++;
+            // 열 방향 회문 확인
+            for (int j = 0; j < 100; j++) {
+                for (int i = 0; i < 100; i++) {
+                    for (int k = 1; i + k <= 100; k++) {
+                        StringBuilder str = new StringBuilder();
+                        for (int l = 0; l < k; l++) {
+                            str.append(map[i + l][j]);
+                        }
+                        if (str.toString().equals(str.reverse().toString())) {
+                            max = Math.max(max, k);
+                        }
                     }
                 }
             }
-            System.out.println("#" + T + " " + answer);
+
+            System.out.println("#" + t + " " + max);
         }
     }
 }
