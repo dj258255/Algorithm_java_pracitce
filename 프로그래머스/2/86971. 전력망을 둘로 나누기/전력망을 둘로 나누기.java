@@ -12,7 +12,7 @@ class Solution {
         //모든 전선을 하나씩 끊어보면서 최소 차이 찾기
         for ( int i = 0; i < wires.length; i++){
             //전선 하나를 제외하고 그래프에 추가
-            Map<Integer,List<Integer>> graph = new HashMap<>();
+            HashMap<Integer,List<Integer>> graph = new HashMap<>();
             for(int j = 1; j <=n; j++){
                 graph.put(j,new ArrayList<>());
             }
