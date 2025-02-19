@@ -1,68 +1,49 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 public class Solution {
-    public static void main(String[] args) {
-        Scanner scan = new Scanner(System.in);
-        for (int t = 1; t <= 10; t++) {
-            int T = scan.nextInt();
-
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        for (int t = 0; t < 10; t++) {
+            int testCaseNumber = Integer.parseInt(br.readLine().trim());
             int[][] map = new int[100][100];
-
             for (int i = 0; i < 100; i++) {
+                StringTokenizer st = new StringTokenizer(br.readLine());
                 for (int j = 0; j < 100; j++) {
-                    map[i][j] = scan.nextInt();
+                    map[i][j] = Integer.parseInt(st.nextToken());
                 }
             }
-
-            int answer = 0; //시작점
-            boolean found = false;
-
-            while (answer < 100 && !found) {
-                if (map[0][answer] == 0) {
-                    answer++;
-                    continue;
-                }
-
-                // 현재 위치 초기화
-                int i = 0;
-                int j = answer;
-
-                // 아래로 이동하면서 체크
-                while (i < 100) {
-                    // 오른쪽으로 이동
-                    if (j < 99 && map[i][j + 1] == 1) {
-                        while (j < 99 && map[i][j + 1] == 1) {
-                            j++;
-                        }
-                        i++;  // 가로 이동이 끝난 후 한 칸 아래로
-                    }
-                    // 왼쪽으로 이동
-                    else if (j > 0 && map[i][j - 1] == 1) {
-                        while (j > 0 && map[i][j - 1] == 1) {
-                            j--;
-                        }
-                        i++;  // 가로 이동이 끝난 후 한 칸 아래로
-                    }
-                    // 가로선이 없으면 아래로 이동
-                    else {
-                        i++;
-                    }
-
-                    // 마지막 줄 도착
-                    if (i == 100) {
-                        if (map[99][j] == 2) {
-                            found = true;
-                        }
-                        break;
-                    }
-                }
-
-                if (!found) {
-                    answer++;
+            
+            int startPositionX = 0;
+            for (int i = 0; i < 100; i++) {
+                if (map[99][i] == 2) {
+                    startPositionX = i;
+                    break;
                 }
             }
-
-            System.out.println("#" + T + " " + answer);
+            
+            int currentX = startPositionX;
+            int currentY = 99;
+            
+            while (currentY > 0) {
+                if (currentX < 99 && map[currentY][currentX+1] == 1) {
+                    while (currentX < 99 && map[currentY][currentX+1] == 1) {
+                        currentX++;
+                    }
+                }
+                else if (currentX > 0 && map[currentY][currentX-1] == 1) {
+                    while (currentX > 0 && map[currentY][currentX-1] == 1) {
+                        currentX--;
+                    }
+                }
+                
+                //가로 이동이 없으면 위로 이동
+                currentY--;
+            }
+            
+            System.out.println("#" + testCaseNumber + " " + currentX);
         }
     }
 }
