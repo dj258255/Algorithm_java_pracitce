@@ -14,9 +14,9 @@ public class Main {
         for (int i = 0; i < (int)K; i++) {
             st = new StringTokenizer(br.readLine());
             number[i] = Long.parseLong(st.nextToken());
-            right = Math.max(right, number[i]);
+            right += number[i];
         }
-
+        right /= N;
         long answer = 0;
         long left = 1;
 
