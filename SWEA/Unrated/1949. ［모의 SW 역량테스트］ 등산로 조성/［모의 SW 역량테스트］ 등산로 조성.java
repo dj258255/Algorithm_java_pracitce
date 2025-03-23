@@ -83,7 +83,7 @@ public class Solution {
 		
 		
 		answer = Math.max(answer, count);
-		visited[y][x] = false;
+//		visited[y][x] = false;
 	}
 
 }
