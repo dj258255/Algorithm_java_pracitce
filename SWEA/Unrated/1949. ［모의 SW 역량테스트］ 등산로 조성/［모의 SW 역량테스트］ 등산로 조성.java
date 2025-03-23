@@ -29,7 +29,6 @@ public class Solution {
 					maxHeight = Math.max(maxHeight, map[i][j]); //제일 큰 숫자 찾
 				}
 			}
-			
 			//제일 높은 봉우리들
 			startList = new ArrayList<>();
 			for(int i = 0 ; i < N; i++) {
@@ -39,16 +38,13 @@ public class Solution {
 					}
 				}
 			}
-			
 			answer = Integer.MIN_VALUE;
 			for(int i = 0 ; i < startList.size(); i++) {
 				boolean[][] visited = new boolean[N][N];
 				visited[startList.get(i)[0]][startList.get(i)[1]] = true;
 				dfs(map, startList.get(i)[1],startList.get(i)[0], 1 ,visited , 0);
+				visited[startList.get(i)[0]][startList.get(i)[1]] = false;
 			}
-			
-			
-			
 			System.out.println("#" + tc + " " + answer);
 		}
 	}
@@ -79,11 +75,7 @@ public class Solution {
 					}
 				}
 			}
-		}
-		
-		
+		}	
 		answer = Math.max(answer, count);
-//		visited[y][x] = false;
 	}
-
 }
