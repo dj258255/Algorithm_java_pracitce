@@ -1,75 +1,63 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.util.StringTokenizer;
-import java.util.Arrays;
+import java.io.*;
+import java.util.*;
 
 public class Solution {
-    static int V, E;
-    static int[] parent;
-    
-    static void make() {
-        parent = new int[V];
-        for (int i = 0; i < V; i++) {
-            parent[i] = i;
-        }
-    }
-    
-    static int find(int x) {
-        if (parent[x] == x) return x;
-        return parent[x] = find(parent[x]);
-    }
-    
-    static boolean union(int a, int b) {
-        int rootA = find(a);
-        int rootB = find(b);
-        if (rootA == rootB) return false;
-        parent[rootB] = rootA;
-        return true;
-    }
-    
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        int T = Integer.parseInt(st.nextToken());
+        int T = Integer.parseInt(br.readLine());
         
-        for (int tc = 1; tc <= T; tc++) {
-            st = new StringTokenizer(br.readLine());
-            V = Integer.parseInt(st.nextToken());
-            E = Integer.parseInt(st.nextToken());
-            make();
+        for (int t = 1; t <= T; t++) {
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            int V = Integer.parseInt(st.nextToken());
+            int E = Integer.parseInt(st.nextToken());
             
-            int[][] edges = new int[E][3];
+            Map<Integer, List<int[]>> graph = new HashMap<>();
+            for (int i = 1; i <= V; i++) {
+                graph.put(i, new ArrayList<>());
+            }
+            
             for (int i = 0; i < E; i++) {
                 st = new StringTokenizer(br.readLine());
-                int from = Integer.parseInt(st.nextToken());
-                int to = Integer.parseInt(st.nextToken());
-                int weight = Integer.parseInt(st.nextToken());
-
-                from--;
-                to--;
-                edges[i][0] = from;
-                edges[i][1] = to;
-                edges[i][2] = weight;
+                int a = Integer.parseInt(st.nextToken());
+                int b = Integer.parseInt(st.nextToken());
+                int cost = Integer.parseInt(st.nextToken());
+                graph.get(a).add(new int[]{b, cost});
+                graph.get(b).add(new int[]{a, cost});
             }
-
-            Arrays.sort(edges, (a, b) -> a[2] - b[2]);
-
             
-            long answer = 0;
+            boolean[] visited = new boolean[V + 1];
+            PriorityQueue<int[]> pq = new PriorityQueue<>(new Comparator<int[]>() {
+                public int compare(int[] o1, int[] o2) {
+                    return o1[1] - o2[1];
+                }
+            });
+            long result = 0;
             int count = 0;
+            
 
-            for (int i = 0; i < E; i++) {
-                if (union(edges[i][0], edges[i][1])) {
-                    answer += edges[i][2];
-                    count++;
-                    if (count == V - 1) break;
+            pq.offer(new int[]{1, 0});
+            
+            while (!pq.isEmpty()) {
+                int[] cur = pq.poll();
+                int vertex = cur[0];
+                int cost = cur[1];
+                
+
+                if (visited[vertex]) continue;
+                visited[vertex] = true;
+                result += cost;
+                count++;
+                
+                if (count == V) break;
+                
+                for (int[] next : graph.get(vertex)) {
+                    if (!visited[next[0]]) {
+                        pq.offer(new int[]{next[0], next[1]});
+                    }
                 }
             }
             
-
-            
-            System.out.println("#" + tc + " " + answer);
+            System.out.println("#" + t + " " + result);
         }
     }
 }
