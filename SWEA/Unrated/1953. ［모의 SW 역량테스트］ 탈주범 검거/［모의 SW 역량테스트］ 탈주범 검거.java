@@ -1,79 +1,215 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
+import java.util.LinkedList;
 import java.util.Queue;
 import java.util.StringTokenizer;
-
-class Solution {
-    static int N, M, R, C, L;
-    static int[][] map;
-    static int[] pipe = new int[8];
-    static int[] dr = {-1, 1, 0, 0};
-    static int[] dc = {0, 0, -1, 1};
-    static int[] opposite = {1, 0, 3, 2};
-    static int count;
-
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        pipe[1] = (1 << 0) | (1 << 1) | (1 << 2) | (1 << 3); // 타입 1: 상,하,좌,우
-        pipe[2] = (1 << 0) | (1 << 1);                         // 타입 2: 상,하
-        pipe[3] = (1 << 2) | (1 << 3);                         // 타입 3: 좌,우
-        pipe[4] = (1 << 0) | (1 << 3);                         // 타입 4: 상,우
-        pipe[5] = (1 << 1) | (1 << 3);                         // 타입 5: 하,우
-        pipe[6] = (1 << 1) | (1 << 2);                         // 타입 6: 하,좌
-        pipe[7] = (1 << 0) | (1 << 2);                         // 타입 7: 상,좌
-
-        int Tc = Integer.parseInt(br.readLine().trim());
-        for (int T = 1; T <= Tc; T++) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            N = Integer.parseInt(st.nextToken());
-            M = Integer.parseInt(st.nextToken());
-            R = Integer.parseInt(st.nextToken());
-            C = Integer.parseInt(st.nextToken());
-            L = Integer.parseInt(st.nextToken());
-
-            map = new int[N][M];
-            for (int i = 0; i < N; i++) {
-                st = new StringTokenizer(br.readLine());
-                for (int j = 0; j < M; j++) {
-                    map[i][j] = Integer.parseInt(st.nextToken());
-                }
-            }
-
-            bfs();
-            System.out.println("#" + T + " " + count);
+  
+public class Solution {
+    static int map[][];
+    static int dx[] = { -1, 1, 0, 0 }; // 상 하 좌 우
+    static int dy[] = { 0, 0, -1, 1 };
+  
+    static class Pair {
+        int x;
+        int y;
+        int v;
+  
+        public Pair(int x, int y, int v) {
+            this.x = x;
+            this.y = y;
+            this.v = v;
         }
     }
-
-    public static void bfs() {
-        boolean[][] visited = new boolean[N][M];
-        Queue<int[]> queue = new ArrayDeque<>();
-        queue.add(new int[] { R, C });
-        visited[R][C] = true;
-        count = 1;
-
-        int steps = 1;
-        while (!queue.isEmpty() && steps < L) {
-            int size = queue.size();
-            for (int i = 0; i < size; i++) {
-                int[] cur = queue.poll();
-                int r = cur[0], c = cur[1];
-                int curType = map[r][c];
-                int possible = pipe[curType];
-                for (int d = 0; d < 4; d++) {
-                    if ((possible & (1 << d)) == 0) continue;
-                    int nr = r + dr[d], nc = c + dc[d];
-                    if (nr < 0 || nr >= N || nc < 0 || nc >= M || map[nr][nc] == 0 || visited[nr][nc])
-                        continue;
-                    int nextType = map[nr][nc];
-                    if ((pipe[nextType] & (1 << opposite[d])) == 0) continue;
-                    visited[nr][nc] = true;
-                    queue.add(new int[] { nr, nc });
-                    count++;
+  
+    static int bfs(int x, int y, int N, int M, int L) {
+        Queue<Pair> q = new LinkedList<>();
+        q.add(new Pair(x, y, map[x][y]));
+        boolean check[][] = new boolean[N][M];
+        check[x][y] = true;
+        int q_size = 0;
+        while (!q.isEmpty() && L > 1) {
+            L--;
+            q_size = q.size();
+            for (int qSize = 0; qSize < q_size; qSize++) {
+                Pair p = q.poll();
+                if (p.v == 1) {
+                    // 상하좌우
+                    for (int i = 0; i < 4; i++) {
+                        int nx = p.x + dx[i];
+                        int ny = p.y + dy[i];
+                        if (0 <= nx && nx < N && 0 <= ny && ny < M && check[nx][ny] == false) {
+                            int mapV = map[nx][ny];
+                            // 상
+                            if (i == 0 && (mapV == 1 || mapV == 2 || mapV == 5 || mapV == 6)) {
+                                q.add(new Pair(nx, ny, map[nx][ny]));
+                                check[nx][ny] = true;
+                            }
+                            // 하
+                            else if (i == 1 && (mapV == 1 || mapV == 2 || mapV == 4 || mapV == 7)) {
+                                q.add(new Pair(nx, ny, map[nx][ny]));
+                                check[nx][ny] = true;
+                            }
+                            // 좌
+                            else if (i == 2 && (mapV == 1 || mapV == 3 || mapV == 4 || mapV == 5)) {
+                                q.add(new Pair(nx, ny, map[nx][ny]));
+                                check[nx][ny] = true;
+                            }
+                            // 우
+                            else if (i == 3 && (mapV == 1 || mapV == 3 || mapV == 6 || mapV == 7)) {
+                                q.add(new Pair(nx, ny, map[nx][ny]));
+                                check[nx][ny] = true;
+                            }
+                        }
+  
+                    }
+                } else if (p.v == 2) {
+                    // 상하
+                    for (int i = 0; i < 2; i++) {
+                        int nx = p.x + dx[i];
+                        int ny = p.y + dy[i];
+                        if (0 <= nx && nx < N && 0 <= ny && ny < M && check[nx][ny] == false) {
+                            int mapV = map[nx][ny];
+                            // 상
+                            if (i == 0 && (mapV == 1 || mapV == 2 || mapV == 5 || mapV == 6)) {
+                                q.add(new Pair(nx, ny, map[nx][ny]));
+                                check[nx][ny] = true;
+                            }
+                            // 하
+                            else if (i == 1 && (mapV == 1 || mapV == 2 || mapV == 4 || mapV == 7)) {
+                                q.add(new Pair(nx, ny, map[nx][ny]));
+                                check[nx][ny] = true;
+                            }
+                        }
+                    }
+                } else if (p.v == 3) {
+                    // 좌우
+                    for (int i = 2; i < 4; i++) {
+                        int nx = p.x + dx[i];
+                        int ny = p.y + dy[i];
+                        if (0 <= nx && nx < N && 0 <= ny && ny < M && check[nx][ny] == false) {
+                            int mapV = map[nx][ny];
+                            // 좌
+                            if (i == 2 && (mapV == 1 || mapV == 3 || mapV == 4 || mapV == 5)) {
+                                q.add(new Pair(nx, ny, map[nx][ny]));
+                                check[nx][ny] = true;
+                            }
+                            // 우
+                            else if (i == 3 && (mapV == 1 || mapV == 3 || mapV == 6 || mapV == 7)) {
+                                q.add(new Pair(nx, ny, map[nx][ny]));
+                                check[nx][ny] = true;
+                            }
+                        }
+                    }
+                } else if (p.v == 4) {
+                    // 상우
+                    for (int i = 0; i < 4; i++) {
+                        int nx = p.x + dx[i];
+                        int ny = p.y + dy[i];
+                        if (0 <= nx && nx < N && 0 <= ny && ny < M && check[nx][ny] == false) {
+                            int mapV = map[nx][ny];
+                            // 상
+                            if (i == 0 && (mapV == 1 || mapV == 2 || mapV == 5 || mapV == 6)) {
+                                q.add(new Pair(nx, ny, map[nx][ny]));
+                                check[nx][ny] = true;
+                            }
+                            // 우
+                            else if (i == 3 && (mapV == 1 || mapV == 3 || mapV == 6 || mapV == 7)) {
+                                q.add(new Pair(nx, ny, map[nx][ny]));
+                                check[nx][ny] = true;
+                            }
+                        }
+                    }
+                } else if (p.v == 5) {
+                    // 하우
+                    for (int i = 0; i < 4; i++) {
+                        int nx = p.x + dx[i];
+                        int ny = p.y + dy[i];
+                        if (0 <= nx && nx < N && 0 <= ny && ny < M && check[nx][ny] == false) {
+                            int mapV = map[nx][ny];
+                            // 하
+                            if (i == 1 && (mapV == 1 || mapV == 2 || mapV == 4 || mapV == 7)) {
+                                q.add(new Pair(nx, ny, map[nx][ny]));
+                                check[nx][ny] = true;
+                            }
+                            // 우
+                            else if (i == 3 && (mapV == 1 || mapV == 3 || mapV == 6 || mapV == 7)) {
+                                q.add(new Pair(nx, ny, map[nx][ny]));
+                                check[nx][ny] = true;
+                            }
+                        }
+                    }
+                } else if (p.v == 6) {
+                    // 하좌
+                    for (int i = 0; i < 4; i++) {
+                        int nx = p.x + dx[i];
+                        int ny = p.y + dy[i];
+                        if (0 <= nx && nx < N && 0 <= ny && ny < M && check[nx][ny] == false) {
+                            int mapV = map[nx][ny];
+                            // 하
+                            if (i == 1 && (mapV == 1 || mapV == 2 || mapV == 4 || mapV == 7)) {
+                                q.add(new Pair(nx, ny, map[nx][ny]));
+                                check[nx][ny] = true;
+                            }
+                            // 좌
+                            else if (i == 2 && (mapV == 1 || mapV == 3 || mapV == 4 || mapV == 5)) {
+                                q.add(new Pair(nx, ny, map[nx][ny]));
+                                check[nx][ny] = true;
+                            }
+                        }
+                    }
+                } else if (p.v == 7) {
+                    // 상좌
+                    for (int i = 0; i < 4; i++) {
+                        int nx = p.x + dx[i];
+                        int ny = p.y + dy[i];
+                        if (0 <= nx && nx < N && 0 <= ny && ny < M && check[nx][ny] == false) {
+                            int mapV = map[nx][ny];
+                            // 상
+                            if (i == 0 && (mapV == 1 || mapV == 2 || mapV == 5 || mapV == 6)) {
+                                q.add(new Pair(nx, ny, map[nx][ny]));
+                                check[nx][ny] = true;
+                            }
+                            // 좌
+                            else if (i == 2 && (mapV == 1 || mapV == 3 || mapV == 4 || mapV == 5)) {
+                                q.add(new Pair(nx, ny, map[nx][ny]));
+                                check[nx][ny] = true;
+                            }
+                        }
+                    }
                 }
             }
-            steps++;
+        }
+        int result = 0;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (check[i][j] == true) {
+                    result++;
+                }
+            }
+        }
+        return result;
+    }
+  
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int T = Integer.parseInt(st.nextToken());
+        for (int t = 0; t < T; t++) {
+            st = new StringTokenizer(br.readLine());
+            int N = Integer.parseInt(st.nextToken());// 맵 세로
+            int M = Integer.parseInt(st.nextToken());// 맵 가로
+            int R = Integer.parseInt(st.nextToken());// 맨홀 세로
+            int C = Integer.parseInt(st.nextToken());// 맨홀 가로
+            int L = Integer.parseInt(st.nextToken());// 탈출 후 소요된 시간
+            map = new int[N][M];
+            for (int n = 0; n < N; n++) {
+                st = new StringTokenizer(br.readLine());
+                for (int m = 0; m < M; m++) {
+                    map[n][m] = Integer.parseInt(st.nextToken());
+                }
+            }
+            System.out.println("#" + (t + 1) + " " + bfs(R, C, N, M, L));
         }
     }
 }
