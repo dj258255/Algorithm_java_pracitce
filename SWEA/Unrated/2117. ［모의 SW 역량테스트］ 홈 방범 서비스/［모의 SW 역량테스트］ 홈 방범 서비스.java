@@ -1,94 +1,96 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader; 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayDeque;
+import java.util.Queue;
+import java.util.StringTokenizer;
 
-public class Solution {
+class Solution {
     static int N, M;
-    static int[][] board;
-    static boolean[][] visited;
-    static int[] dx = {-1, 1, 0, 0}; 
-    static int[] dy = {0, 0, -1, 1}; 
-    static int maxHome;
-    
-    public static class Point {
-        int x;
-        int y; 
-        Point(int x, int y) {
-            this.x = x; 
-            this.y = y; 
-        }
-    }
-    
+    static int[][] map;
+    static int[][] dir = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
+    static int answer = 0;
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
-        int T = Integer.parseInt(br.readLine());
-        
-        StringBuilder sb = new StringBuilder();
-        for (int tc = 1; tc <= T; tc++) {
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int Tc = Integer.parseInt(st.nextToken());
+        for (int t = 1; t <= Tc; t++) {
             st = new StringTokenizer(br.readLine());
             N = Integer.parseInt(st.nextToken());
             M = Integer.parseInt(st.nextToken());
-            board = new int[N][N];
+            map = new int[N][N];
             for (int i = 0; i < N; i++) {
                 st = new StringTokenizer(br.readLine());
                 for (int j = 0; j < N; j++) {
-                    board[i][j] = Integer.parseInt(st.nextToken());
+                    map[i][j] = Integer.parseInt(st.nextToken());
                 }
             }
-            
-            maxHome = 0; 
-            
+            answer = 0;
             for (int i = 0; i < N; i++) {
                 for (int j = 0; j < N; j++) {
-                    bfs(i, j);
+                    find(i, j, 1);
                 }
             }
-            
-            sb.append("#").append(tc).append(" ").append(maxHome).append("\n");
+            System.out.println("#" + t + " " + answer);
         }
-        
-        System.out.print(sb.toString());
     }
     
-    public static void bfs(int x, int y) {
-        visited = new boolean[N][N];
-        Queue<Point> queue = new LinkedList<>();
-        queue.add(new Point(x, y));
-        visited[x][y] = true;
+    public static void find(int startR, int startC, int k) {
+        // 서비스 영역의 k값이 최대 범위를 넘으면 종료
+        if (k > 2 * N) return;
         
-        int houseCount = 0;
-        if(board[x][y] == 1) {
-            houseCount++;
-        }
+        // 운영 비용 계산: cost = k^2 + (k-1)^2
+        int cost = k * k + (k - 1) * (k - 1);
         
-        int level = 1;
-        int cost = level * level + (level - 1) * (level - 1);
-        if(houseCount * M >= cost) {
-            maxHome = Math.max(maxHome, houseCount);
-        }
-        
-        while(!queue.isEmpty()){
-            int size = queue.size();
-            level++;
-            if(level > 50) break;
-            for(int s = 0; s < size; s++){
-                Point cur = queue.poll();
-                for(int i = 0; i < 4; i++){
-                    int nx = cur.x + dx[i];
-                    int ny = cur.y + dy[i];
-                    if(nx < 0 || nx >= N || ny < 0 || ny >= N) continue;
-                    if(visited[nx][ny]) continue;
-                    visited[nx][ny] = true;
-                    if(board[nx][ny] == 1) {
-                        houseCount++;
+
+        int maxPossible = 0;
+        for (int i = -(k - 1); i <= (k - 1); i++) {
+            for (int j = -(k - 1); j <= (k - 1); j++) {
+                if (Math.abs(i) + Math.abs(j) < k) {
+                    int nr = startR + i;
+                    int nc = startC + j;
+                    if (!outOfBounds(nr, nc) && map[nr][nc] == 1) {
+                        maxPossible++;
                     }
-                    queue.add(new Point(nx, ny));
                 }
             }
-            cost = level * level + (level - 1) * (level - 1);
-            if(houseCount * M >= cost) {
-                maxHome = Math.max(maxHome, houseCount);
+        }
+        if (M * maxPossible < cost) {
+            find(startR, startC, k + 1);
+            return;
+        }
+        
+        // BFS를 이용하여 실제 서비스 영역 내 집 개수 계산
+        boolean[][] visited = new boolean[N][N];
+        Queue<int[]> queue = new ArrayDeque<>();
+        queue.add(new int[] { startR, startC, 0 });
+        visited[startR][startC] = true;
+        int homeCount = (map[startR][startC] == 1) ? 1 : 0;
+        
+        while (!queue.isEmpty()) {
+            int[] node = queue.poll();
+            int r = node[0], c = node[1], depth = node[2];
+            
+            if (depth == k - 1) continue;
+            for (int d = 0; d < 4; d++) {
+                int nr = r + dir[d][0], nc = c + dir[d][1];
+                if (outOfBounds(nr, nc)) continue;
+                if (!visited[nr][nc]) {
+                    visited[nr][nc] = true;
+                    if (map[nr][nc] == 1) homeCount++;
+                    queue.add(new int[] { nr, nc, depth + 1 });
+                }
             }
         }
+        
+        if (M * homeCount >= cost) {
+            answer = Math.max(answer, homeCount);
+        }
+        find(startR, startC, k + 1);
+    }
+
+    public static boolean outOfBounds(int r, int c) {
+        return r < 0 || c < 0 || r >= N || c >= N;
     }
 }
