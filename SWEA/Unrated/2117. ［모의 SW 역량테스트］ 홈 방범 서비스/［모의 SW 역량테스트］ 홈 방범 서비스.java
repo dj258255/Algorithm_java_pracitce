@@ -1,86 +1,94 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.util.StringTokenizer;
-import java.util.ArrayDeque;
-import java.util.Queue;
+import java.io.*;
+import java.util.*;
 
 public class Solution {
-    static int N, M, answer;
-    static int[][] map;
-    static int[][] dir = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
-
-    public static void main(String[] args) throws IOException{
+    static int N, M;
+    static int[][] board;
+    static boolean[][] visited;
+    static int[] dx = {-1, 1, 0, 0}; 
+    static int[] dy = {0, 0, -1, 1}; 
+    static int maxHome;
+    
+    public static class Point {
+        int x;
+        int y; 
+        Point(int x, int y) {
+            this.x = x; 
+            this.y = y; 
+        }
+    }
+    
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int T = Integer.parseInt(br.readLine().trim());
-        for (int t = 1; t <= T; t++){
-            StringTokenizer st = new StringTokenizer(br.readLine());
+        StringTokenizer st;
+        int T = Integer.parseInt(br.readLine());
+        
+        StringBuilder sb = new StringBuilder();
+        for (int tc = 1; tc <= T; tc++) {
+            st = new StringTokenizer(br.readLine());
             N = Integer.parseInt(st.nextToken());
             M = Integer.parseInt(st.nextToken());
-            map = new int[N][N];
-            for (int i = 0; i < N; i++){
+            board = new int[N][N];
+            for (int i = 0; i < N; i++) {
                 st = new StringTokenizer(br.readLine());
-                for (int j = 0; j < N; j++){
-                    map[i][j] = Integer.parseInt(st.nextToken());
+                for (int j = 0; j < N; j++) {
+                    board[i][j] = Integer.parseInt(st.nextToken());
                 }
             }
-            answer = 0;
-            for (int i = 0; i < N; i++){
-                for (int j = 0; j < N; j++){
+            
+            maxHome = 0; 
+            
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
                     bfs(i, j);
                 }
             }
-            System.out.println("#" + t + " " + answer);
-        }
-    }
-
-    static void bfs(int startR, int startC){
-        boolean[][] visited = new boolean[N][N];
-        Queue<int[]> queue = new ArrayDeque<>();
-        // queue 요소: {r, c, distance}
-        visited[startR][startC] = true;
-        queue.offer(new int[]{startR, startC, 0});
-
-        int cumulative = (map[startR][startC] == 1 ? 1 : 0);
-
-        int currentLayer = 0;
-        int k = 1;
-        int cost = k * k + (k - 1) * (k - 1);
-        if(cumulative * M >= cost) {
-            answer = Math.max(answer, cumulative);
+            
+            sb.append("#").append(tc).append(" ").append(maxHome).append("\n");
         }
         
-
+        System.out.print(sb.toString());
+    }
+    
+    public static void bfs(int x, int y) {
+        visited = new boolean[N][N];
+        Queue<Point> queue = new LinkedList<>();
+        queue.add(new Point(x, y));
+        visited[x][y] = true;
+        
+        int houseCount = 0;
+        if(board[x][y] == 1) {
+            houseCount++;
+        }
+        
+        int level = 1;
+        int cost = level * level + (level - 1) * (level - 1);
+        if(houseCount * M >= cost) {
+            maxHome = Math.max(maxHome, houseCount);
+        }
+        
         while(!queue.isEmpty()){
-            int[] cur = queue.poll();
-            int r = cur[0], c = cur[1], dist = cur[2];
-
-            if(dist > currentLayer){
-                currentLayer = dist;
-                k = currentLayer + 1;
-                cost = k * k + (k - 1) * (k - 1);
-                if(cumulative * M >= cost) {
-                    answer = Math.max(answer, cumulative);
+            int size = queue.size();
+            level++;
+            if(level > 50) break;
+            for(int s = 0; s < size; s++){
+                Point cur = queue.poll();
+                for(int i = 0; i < 4; i++){
+                    int nx = cur.x + dx[i];
+                    int ny = cur.y + dy[i];
+                    if(nx < 0 || nx >= N || ny < 0 || ny >= N) continue;
+                    if(visited[nx][ny]) continue;
+                    visited[nx][ny] = true;
+                    if(board[nx][ny] == 1) {
+                        houseCount++;
+                    }
+                    queue.add(new Point(nx, ny));
                 }
             }
-
-            if(dist < 2 * N){ 
-                for (int d = 0; d < 4; d++){
-                    int nr = r + dir[d][0], nc = c + dir[d][1];
-                    if(outOfBounds(nr, nc)) continue;
-                    if(!visited[nr][nc]){
-                        visited[nr][nc] = true;
-                        queue.offer(new int[]{nr, nc, dist + 1});
-                        if(map[nr][nc] == 1){
-                            cumulative++; 
-                        }
-                    }
-                }
+            cost = level * level + (level - 1) * (level - 1);
+            if(houseCount * M >= cost) {
+                maxHome = Math.max(maxHome, houseCount);
             }
         }
-    }
-
-    static boolean outOfBounds(int r, int c){
-        return r < 0 || c < 0 || r >= N || c >= N;
     }
 }
