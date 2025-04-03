@@ -4,45 +4,36 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 public class Solution {
-    static int N, L;
-    static int maxTaste;
-    static int[][] food;
-    
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int T = Integer.parseInt(br.readLine().trim());
+        StringTokenizer st = new StringTokenizer(br.readLine());
         
-        for (int tc = 1; tc <= T; tc++) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            N = Integer.parseInt(st.nextToken());  //개수
-            L = Integer.parseInt(st.nextToken()); //허용 칼로리
-            
-            food = new int[N][2];
-            for (int i = 0; i < N; i++) {
+        
+        int T = Integer.parseInt(st.nextToken());
+        for(int Tc = 1; Tc<=T; Tc++) {
+        	st = new StringTokenizer(br.readLine());
+
+            int N = Integer.parseInt(st.nextToken()); //햄버거 개수
+            int L = Integer.parseInt(st.nextToken()); //내 최대 칼로리
+
+            int[] score = new int[N];  //햄버거들 점수 
+            int[] calorie = new int[N]; //햄버거 칼로리
+
+            for(int i = 0; i < N; i++) {
                 st = new StringTokenizer(br.readLine());
-                food[i][0] = Integer.parseInt(st.nextToken()); //점수
-                food[i][1] = Integer.parseInt(st.nextToken()); //칼로리
+                score[i] = Integer.parseInt(st.nextToken()); //햄버거 맛
+                calorie[i] = Integer.parseInt(st.nextToken()); //햄버거 칼로리
             }
             
-            maxTaste = 0; //최대 맛
-            dfs(0, 0, 0); //조합
-            System.out.println("#" + tc + " " + maxTaste);
-        }
-    }
-    
+            int[] dp = new int[L + 1]; //최대칼로리 +1
 
-    public static void dfs(int index, int taste, int calories) {
-
-        if (calories > L) {
-            return;
+            for(int i = 0; i < N; i++) {
+                for(int j = L; j >= calorie[i]; j--) {
+                    dp[j] = Math.max(dp[j], dp[j - calorie[i]] + score[i]);
+                }
+            }
+            
+            System.out.println("#" + Tc + " " + dp[L]);
         }
-        
-        if (index == N) {
-            maxTaste = Math.max(maxTaste, taste);
-            return;
-        }
-        dfs(index + 1, taste, calories);
-        
-        dfs(index + 1, taste + food[index][0], calories + food[index][1]);
     }
 }
