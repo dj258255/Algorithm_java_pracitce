@@ -3,55 +3,42 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
-public class Solution{
-	static int[] month = new int[13]; //12개월 이용 계획
-	static int[] tickets = new int[4]; //이용권 가격들 1일 , 1달 ,3달 , 1년
-	static boolean[] visited = new boolean[12];
-	static int answer;
-	
-	public static void main(String[] args) throws IOException{
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(br.readLine());
-		
-		int T = Integer.parseInt(st.nextToken());
-		
-		for(int tc = 1; tc <= T; tc++) {
-			st = new StringTokenizer(br.readLine());
-			for(int i = 0 ; i < 4; i++) {
-				tickets[i] = Integer.parseInt(st.nextToken()); 
-			}
-			
-			st = new StringTokenizer(br.readLine());
-			for(int j = 1 ; j <= 12; j++) {
-				month[j] = Integer.parseInt(st.nextToken()); 
-			}
-			
-			
-			answer = tickets[3]; //최소 1년 가격.
-			find(1,0);
-			
-			
-			System.out.println("#" + tc + " " + answer);
-		}
-	}
-	
-	
-	public static void find(int index , int sum) {
-		if(answer < sum) return;
-		if(index > 12) {
-			if (answer > sum) {
-				answer = sum;
-			}
-			return;
-		}
-		
-		if(month[index]== 0 ) {
-			find(index+1, sum);
-		} else {
-			//이용권 가격들0: 1일 ,1: 1달 ,2: 3달
-			find(index+1, sum + (month[index] * tickets[0]));
-			find(index+1, sum+tickets[1]);
-			find(index+3,  sum+tickets[2]);
-		}
-	}
+public class Solution {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        
+        int Tc = Integer.parseInt(st.nextToken());
+        
+        for (int tc = 1; tc <= Tc; tc++) {
+            st = new StringTokenizer(br.readLine());
+            int day = Integer.parseInt(st.nextToken());
+            int month = Integer.parseInt(st.nextToken());
+            int threeMonth = Integer.parseInt(st.nextToken());
+            int year = Integer.parseInt(st.nextToken());
+            
+            st = new StringTokenizer(br.readLine());
+            int[] years = new int[13];
+            for (int i = 1; i <= 12; i++) {
+                years[i] = Integer.parseInt(st.nextToken());
+            }
+            
+            int[] dp = new int[13];
+            dp[0] = 0;
+            
+            for (int i = 1; i <= 12; i++) {
+                dp[i] = dp[i-1] + (years[i] * day);
+                dp[i] = Math.min(dp[i], dp[i-1] + month);
+                
+                if (i >= 3) {
+                    dp[i] = Math.min(dp[i], dp[i-3] + threeMonth);
+                } else {
+                    dp[i] = Math.min(dp[i], threeMonth);
+                }
+            }
+            
+            int result = Math.min(dp[12], year);
+            System.out.println("#" + tc + " " + result);
+        }
+    }
 }
