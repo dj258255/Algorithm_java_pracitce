@@ -23,7 +23,7 @@ class Solution {
                         dp[i].add(a+b);
                         dp[i].add(a*b);
                         dp[i].add(a-b);
-                        if(b != 0) dp[i].add(a/b);
+                        if(b != 0 && a !=0 ) dp[i].add(a/b);
                     }
                 }
             }
