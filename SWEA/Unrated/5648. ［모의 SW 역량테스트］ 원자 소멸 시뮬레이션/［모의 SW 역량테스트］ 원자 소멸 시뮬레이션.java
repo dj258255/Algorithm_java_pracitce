@@ -55,7 +55,7 @@ public class Solution {
             //map 초기화
             for (Core c : cores) {
                 if (c.x >= 0 && c.x < SIZE && c.y >= 0 && c.y < SIZE) {
-                    map[c.x][c.y] += c.k;
+                    map[c.y][c.x] += c.k;
                 }
             }
 
@@ -64,7 +64,7 @@ public class Solution {
             for (Core c : cores) {
                 if (c.x < 0 || c.x >= SIZE || c.y < 0 || c.y >= SIZE) continue;
 
-                if (map[c.x][c.y] == c.k) {
+                if (map[c.y][c.x] == c.k) {
                     //충돌 안함
                     next.add(c);
                 } else {
@@ -76,7 +76,7 @@ public class Solution {
             //map초기화 (다음 시간 대비)
             for (Core c : cores) {
                 if (c.x >= 0 && c.x < SIZE && c.y >= 0 && c.y < SIZE) {
-                    map[c.x][c.y] = 0;
+                    map[c.y][c.x] = 0;
                 }
             }
 
