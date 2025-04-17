@@ -13,7 +13,7 @@ public class Main{
 	static int[] dc = {0,0,-1,1};
 	static int[][] map;
 	static BabyShark babyshark;
-	static PriorityQueue<int[]> eatFish;
+	static PriorityQueue<int[]> allFish;
 	static int N;
 	public static class BabyShark{
 		int r;
@@ -37,7 +37,7 @@ public class Main{
 	    N = Integer.parseInt(st.nextToken());
 	    map = new int[N][N];
 
-	    eatFish = new PriorityQueue<>((o1,o2) -> {
+	    allFish = new PriorityQueue<>((o1,o2) -> {
 	        if(o1[2] != o2[2]) return Integer.compare(o1[2], o2[2]);
 	        if(o1[0] != o2[0]) return Integer.compare(o1[0], o2[0]);
 	        return Integer.compare(o1[1], o2[1]);
@@ -75,7 +75,7 @@ public class Main{
 		queue.add(new int[] {babyshark.r, babyshark.c,0});
 		visited[babyshark.r][babyshark.c] = true;
 		
-		eatFish.clear();
+		allFish.clear();
 		
 		while(!queue.isEmpty()) {
 			int[] cur = queue.poll();
@@ -83,8 +83,8 @@ public class Main{
 			int c = cur[1];
 			int dist = cur[2];
 			
-			if(babyshark.size > map[r][c] && map[r][c] != 0) { //물고기보다 아기상어 가 크거나 같을 
-				eatFish.add(new int[] {r,c,dist});
+			if(babyshark.size > map[r][c] && map[r][c] != 0) { //물고기보다 아기상어 가 클 때 
+				allFish.add(new int[] {r,c,dist});
 				continue;
 			}
 			
@@ -102,8 +102,8 @@ public class Main{
 		}
 		
 		//먹을 수 있는 물고기 중 우선순위 가장 높은 
-		if(!eatFish.isEmpty()) {
-			int[] fish = eatFish.poll();
+		if(!allFish.isEmpty()) {
+			int[] fish = allFish.poll();
 			int fishR = fish[0];
 			int fishC = fish[1];
 			int fishDist = fish[2];
