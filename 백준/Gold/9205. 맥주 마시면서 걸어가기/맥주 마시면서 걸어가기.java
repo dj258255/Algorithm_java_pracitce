@@ -1,86 +1,120 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayDeque;
-import java.util.Queue;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 
-public class Main{
-	public static int[][] convenienceStore;
-	public static int[] goalPos;
-	static int n;
-	public static void main(String[] args) throws IOException{
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(br.readLine());
-		
-		int T = Integer.parseInt(st.nextToken());
-		//맥주 한 박스에는 맥주가 20개 들어있다. 
-		//목이 마르면 안되기 때문에 50미터에 한 병씩 마시려고 한다. 
-		//즉, 50미터를 가려면 그 직전에 맥주 한 병을 마셔야 한다.
-		
-		for(int t=1; t<=T; t++) {
-			st = new StringTokenizer(br.readLine());
-			n = Integer.parseInt(st.nextToken()); //편의점 개수
-			
-			
-			convenienceStore = new int[n+2][2];
-			
-			Queue<int[]> queue = new ArrayDeque<>();
-			
-			for(int i = 0 ; i < n+2; i++) {
-				st = new StringTokenizer(br.readLine());
-				convenienceStore[i][0] = Integer.parseInt(st.nextToken());
-				convenienceStore[i][1] = Integer.parseInt(st.nextToken());
-			}
+public class Main {
+    static final int MAX_DIST = 20 * 50;   // 한 박스(20병)로 최대 이동 거리
+    static final int CELL_SIZE = MAX_DIST; // 그리드 셀 크기
 
-			System.out.println( (bfs(convenienceStore[0][0],convenienceStore[0][1]) ? "happy" : "sad" ));
+    public static void main(String[] args) throws Exception {
+        FastReader in = new FastReader();
+        StringBuilder sb = new StringBuilder();
+        int T = in.nextInt();
 
-		}
-	}
-	
-	
-	
-	public static boolean bfs(int startR, int startC) {
-		Queue<int[]> queue = new ArrayDeque<>();
-		boolean[] visited = new boolean[n+2]; //인덱스 방문
-		queue.add(new int[] {startR,startC,0}); //인덱스 0 시작.
-		visited[0] = true;
+        while (T-- > 0) {
+            int storeCount = in.nextInt();
+            int total = storeCount + 2;
 
-		
-		while(!queue.isEmpty()) {
-			//50미터당 1개
-			//현재 위치 꺼냄
-			int[] cur = queue.poll();
-			int r = cur[0];
-			int c = cur[1]; 
-			int index = cur[2];
-			
-			int brew = 20; //맥주 한박스 최대 20병
-			
-			for(int i = 0 ; i < n + 2; i++) {
-				int nr = convenienceStore[i][0];
-				int nc = convenienceStore[i][1];
-				int distance = Math.abs(nr-r) + Math.abs(nc-c);
-				
-				if(!visited[i] && brew >= (distance/50.0)) {
-					visited[i] = true;
-//					System.out.println(distance);
-//					System.out.println(distance/50);
-					
-				
-					queue.add(new int[] {nr,nc,i});
-					
-				}
-				
-				
-			}
-			
-			if(index == n + 1) {
-				return true;
-			}
-			
-		}
-		
-		return false;
-	}
+            // 좌표 분리 저장
+            int[] x = new int[total], y = new int[total];
+            for (int i = 0; i < total; i++) {
+                x[i] = in.nextInt();
+                y[i] = in.nextInt();
+            }
+
+            // 공간 해싱: (cellX,cellY) → 인덱스 리스트
+            Map<Long, List<Integer>> grid = new HashMap<>();
+            for (int i = 0; i < total; i++) {
+                long key = keyOf(x[i], y[i]);
+                grid.computeIfAbsent(key, k -> new ArrayList<>()).add(i);
+            }
+
+            // BFS 준비
+            boolean[] visited = new boolean[total];
+            int[] queue = new int[total];
+            int qh = 0, qt = 0;
+
+            // 집(0)에서 출발
+            visited[0] = true;
+            queue[qt++] = 0;
+
+            boolean canReach = false;
+            while (qh < qt) {
+                int u = queue[qh++];
+                if (u == total - 1) {  // 페스티벌 도달!
+                    canReach = true;
+                    break;
+                }
+
+                int cx = x[u], cy = y[u];
+                int cellX = cx / CELL_SIZE;
+                int cellY = cy / CELL_SIZE;
+
+                // 주변 3×3 셀만 살핀다
+                for (int dx = -1; dx <= 1; dx++) {
+                    for (int dy = -1; dy <= 1; dy++) {
+                        long neighKey = (((long)(cellX + dx)) << 32)
+                                      | ((cellY + dy) & 0xffffffffL);
+                        List<Integer> bucket = grid.get(neighKey);
+                        if (bucket == null) continue;
+
+                        // 방문 가능한 편의점만 골라서 큐에 추가하고 버킷에서 제거
+                        Iterator<Integer> it = bucket.iterator();
+                        while (it.hasNext()) {
+                            int v = it.next();
+                            if (!visited[v]
+                                && Math.abs(cx - x[v]) + Math.abs(cy - y[v]) <= MAX_DIST) {
+                                visited[v] = true;
+                                queue[qt++] = v;
+                                it.remove();
+                            }
+                        }
+                    }
+                }
+            }
+
+            sb.append(canReach ? "happy\n" : "sad\n");
+        }
+
+        System.out.print(sb);
+    }
+
+    // 그리드 셀 키 계산
+    static long keyOf(int xi, int yi) {
+        int cx = xi / CELL_SIZE;
+        int cy = yi / CELL_SIZE;
+        return (((long)cx) << 32) | (cy & 0xffffffffL);
+    }
+
+    // 빠른 입력 파서
+    static class FastReader {
+        static final int BS = 1<<16;
+        final char[] buf = new char[BS];
+        int idx = 0, size = 0;
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+
+        int nextInt() throws IOException {
+            int c, neg = 0;
+            while ((c = read()) <= ' ') {
+                if (c == -1) return -1;
+            }
+            if (c == '-') {
+                neg = 1;
+                c = read();
+            }
+            int x = c - '0';
+            while ((c = read()) >= '0' && c <= '9') {
+                x = x * 10 + (c - '0');
+            }
+            return neg == 1 ? -x : x;
+        }
+
+        private int read() throws IOException {
+            if (idx >= size) {
+                size = in.read(buf);
+                idx = 0;
+                if (size == -1) return -1;
+            }
+            return buf[idx++];
+        }
+    }
 }
