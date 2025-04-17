@@ -30,10 +30,12 @@ public class Solution{
 	public static void main(String[] args) throws IOException{
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine());
+		StringBuilder sb = new StringBuilder();
 		
 		int T = Integer.parseInt(st.nextToken());
 		
 		for(int tc = 1; tc<=T; tc++) {
+			sb.setLength(0);
 			st = new StringTokenizer(br.readLine());
 			N = Integer.parseInt(st.nextToken()); //셀 크기
 			M = Integer.parseInt(st.nextToken()); //M시간 동안 
@@ -116,8 +118,9 @@ public class Solution{
 			while (!groups.isEmpty()) {
 			    answer += groups.poll().count;
 			}
-
-			System.out.println("#" + tc + " " + answer);
+			
+			
+			System.out.println(sb.append("#").append(tc).append(" ").append(answer));
 		}
 	}
 }
