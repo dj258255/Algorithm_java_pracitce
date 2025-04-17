@@ -40,7 +40,7 @@ public class Solution{
 			K = Integer.parseInt(st.nextToken()); //곰팡이 개수
 
 			
-			PriorityQueue<Group> groups = new PriorityQueue<>( (g1,g2) -> g2.count-g1.count );
+			Queue<Group> groups = new PriorityQueue<>( (g1,g2) -> g2.count-g1.count );
 			
 			for(int i = 0 ; i < K; i++) {
 				st = new StringTokenizer(br.readLine());
@@ -53,9 +53,10 @@ public class Solution{
 			
 			
 			int time = M;
+			
 			Group[][] board = new Group[N][N];
 			
-			while(time-- > 0) { //시간
+			while(time-->0) { //시간
 				
 				while(!groups.isEmpty()) { //모든 곰팡이 다 돌기 , count 높은순에서 낮은 순으로
 					Group temp = groups.poll();
@@ -84,26 +85,26 @@ public class Solution{
 
 				    // board 배열에 합치기
 				    if (board[nr][nc] == null) {
-				        // 비어 있으면 새로 놓기
+				        //비어 있으면 새로 놓기
 				        board[nr][nc] = new Group(nr, nc, count, dir);
 				    } else {
-				        // 이미 있으면 개수 합치기
+				        //이미 있으면 개수 합치기
 				        Group exist = board[nr][nc];
 				        exist.count += count;
-				        // 방향은 더 큰 개수를 가진 그룹의 방향을 유지
+				        //방향은 더 큰 개수를 가진 그룹의 방향을 유지
 				        if (count > exist.count - count) {
 				            exist.dir = dir;
 				        }
 				    }
-				} // 전부 다 이동 끝
+				} //전부 다 이동 끝
 
 
-				// 합친 결과를 다시 PQ에 담기
+				//합친 결과를 다시 PQ에 담기
 				for (int i = 0; i < N; i++) {
 				    for (int j = 0; j < N; j++) {
 				        if (board[i][j] != null) {
 				            groups.add(board[i][j]);
-				            board[i][j] = null;  // 다음 턴을 위해 초기화
+				            board[i][j] = null;  //다음 턴을 위해 초기화
 				        }
 				    }
 				}
