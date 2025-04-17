@@ -4,123 +4,111 @@ import java.io.InputStreamReader;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.StringTokenizer;
+import java.util.ArrayList;
+import java.util.List;
 
+public class Solution {
+    // 세로위치 가로위치 미생물 수 이동방향
+    static int N, M, K;
+    static int[] dr = { -1, 1, 0, 0 }; // 상 하 좌 우
+    static int[] dc = { 0, 0, -1, 1 };
 
-public class Solution{
-	//세로위치 가로위치 미생물 수 이동방향
-	static int N,M,K;
-	static int[] dr = {-1,1,0,0}; //상 하 좌 우
-	static int[] dc = {0,0,-1,1};
-	
-	public static class Group{
-		int r;
-		int c;
-		int count;
-		int dir;
-		
-		public Group(int r, int c , int count, int dir) {
-			super();
-			this.r = r;
-			this.c = c;
-			this.count = count;
-			this.dir = dir;
-		}
-	}
+    public static class Group {
+        int r, c, count, dir;
 
-	public static void main(String[] args) throws IOException{
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(br.readLine());
-		StringBuilder sb = new StringBuilder();
-		
-		int T = Integer.parseInt(st.nextToken());
-		
-		for(int tc = 1; tc<=T; tc++) {
-			sb.setLength(0);
-			st = new StringTokenizer(br.readLine());
-			N = Integer.parseInt(st.nextToken()); //셀 크기
-			M = Integer.parseInt(st.nextToken()); //M시간 동안 
-			K = Integer.parseInt(st.nextToken()); //곰팡이 개수
+        public Group(int r, int c, int count, int dir) {
+            this.r = r;
+            this.c = c;
+            this.count = count;
+            this.dir = dir;
+        }
+    }
 
-			
-			Queue<Group> groups = new PriorityQueue<>( (g1,g2) -> g2.count-g1.count );
-			
-			for(int i = 0 ; i < K; i++) {
-				st = new StringTokenizer(br.readLine());
-				int r= Integer.parseInt(st.nextToken());
-				int c = Integer.parseInt(st.nextToken());
-				int count = Integer.parseInt(st.nextToken());
-				int dir = Integer.parseInt(st.nextToken()) - 1;//보정
-				groups.add(new Group(r,c,count,dir)); 
-			}
-			
-			
-			int time = M;
-			
-			Group[][] board = new Group[N][N];
-			
-			while(time-->0) { //시간
-				
-				while(!groups.isEmpty()) { //모든 곰팡이 다 돌기 , count 높은순에서 낮은 순으로
-					Group temp = groups.poll();
-					int dir = temp.dir; //방향
-					int nr = temp.r + dr[dir]; //다음 칸
-					int nc = temp.c + dc[dir]; //다음 칸
-					int count = temp.count; //곰팡이 개수
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        StringBuilder sb = new StringBuilder();
 
-					
-					
-					if(nr == N || nc == N || nr < 0 || nc < 0) continue; //맵 밖 벗어났을 때
-					if(nr == N-1 || nc == N-1 || nr == 0 || nc == 0) { //빨간색에 닿았을 때
-						count /= 2; //소수점은 버림.
-						
-						switch(dir) { //방향 반대로
-						case 0: dir = 1;
-						break;
-						case 1: dir = 0;
-						break;
-						case 2: dir = 3;
-						break;
-						case 3: dir = 2;
-						break;
-						}
-					}
+        int T = Integer.parseInt(st.nextToken());
+        for (int tc = 1; tc <= T; tc++) {
+            sb.setLength(0);
+            st = new StringTokenizer(br.readLine());
+            N = Integer.parseInt(st.nextToken()); // 셀 크기
+            M = Integer.parseInt(st.nextToken()); // M시간 동안
+            K = Integer.parseInt(st.nextToken()); // 곰팡이 개수
 
-				    // board 배열에 합치기
-				    if (board[nr][nc] == null) {
-				        //비어 있으면 새로 놓기
-				        board[nr][nc] = new Group(nr, nc, count, dir);
-				    } else {
-				        //이미 있으면 개수 합치기
-				        Group exist = board[nr][nc];
-				        exist.count += count;
-				        //방향은 더 큰 개수를 가진 그룹의 방향을 유지
-				        if (count > exist.count - count) {
-				            exist.dir = dir;
-				        }
-				    }
-				} //전부 다 이동 끝
+            // PQ를 K 크기로 미리 생성
+            Queue<Group> groups = new PriorityQueue<>(K, (g1, g2) -> g2.count - g1.count);
 
+            for (int i = 0; i < K; i++) {
+                st = new StringTokenizer(br.readLine());
+                int r = Integer.parseInt(st.nextToken());
+                int c = Integer.parseInt(st.nextToken());
+                int count = Integer.parseInt(st.nextToken());
+                int dir = Integer.parseInt(st.nextToken()) - 1; // 보정
+                groups.add(new Group(r, c, count, dir));
+            }
 
-				//합친 결과를 다시 PQ에 담기
-				for (int i = 0; i < N; i++) {
-				    for (int j = 0; j < N; j++) {
-				        if (board[i][j] != null) {
-				            groups.add(board[i][j]);
-				            board[i][j] = null;  //다음 턴을 위해 초기화
-				        }
-				    }
-				}
-			}
-			
-			
-			
-			int answer = 0;
-			while (!groups.isEmpty()) {
-			    answer += groups.poll().count;
-			}
-			
-			
-			System.out.println(sb.append("#").append(tc).append(" ").append(answer));
-		}
-	}
+            Group[][] board = new Group[N][N];
+            // 이번 턴에 실제로 곰팡이가 들어온 셀만 기록할 리스트
+            List<int[]> touched = new ArrayList<>();
+
+            int time = M;
+            while (time-- > 0) {
+                touched.clear();  // 이전 턴 기록 초기화
+
+                // 1) 모든 그룹을 꺼내서 이동시키며 board에 합치기
+                while (!groups.isEmpty()) {
+                    Group temp = groups.poll();
+                    int dir = temp.dir;
+                    int nr = temp.r + dr[dir];
+                    int nc = temp.c + dc[dir];
+                    int count = temp.count;
+
+                    // 맵을 벗어나면 스킵
+                    if (nr < 0 || nr >= N || nc < 0 || nc >= N)
+                        continue;
+                    // 빨간 구역에 닿으면 절반으로, 방향 반전
+                    if (nr == 0 || nr == N - 1 || nc == 0 || nc == N - 1) {
+                        count /= 2;
+                        switch (dir) {
+                            case 0: dir = 1; break;
+                            case 1: dir = 0; break;
+                            case 2: dir = 3; break;
+                            case 3: dir = 2; break;
+                        }
+                    }
+
+                    // board 셀에 합치기
+                    if (board[nr][nc] == null) {
+                        board[nr][nc] = new Group(nr, nc, count, dir);
+                        touched.add(new int[] { nr, nc });  // 첫 방문 기록
+                    } else {
+                        Group exist = board[nr][nc];
+                        // 기존 개수와 합치기
+                        exist.count += count;
+                        // 더 큰 개수에 따라 방향 결정
+                        if (count > exist.count - count) {
+                            exist.dir = dir;
+                        }
+                    }
+                }
+
+                // 2) 실제로 곰팡이가 들어온 셀만 다시 PQ에 담고 board 초기화
+                for (int[] pos : touched) {
+                    Group g = board[pos[0]][pos[1]];
+                    groups.add(g);
+                    board[pos[0]][pos[1]] = null;
+                }
+            }
+
+            // 최종 남은 미생물 수 합산
+            int answer = 0;
+            while (!groups.isEmpty()) {
+                answer += groups.poll().count;
+            }
+
+            System.out.println(sb.append("#").append(tc).append(" ").append(answer));
+        }
+    }
 }
