@@ -10,13 +10,16 @@ public class Solution {
     static int N;
     static TreeSet<String> ts;
     
-    static Comparator<String> comp = Comparator
-            .comparingInt(String::length)
-            .thenComparing(Comparator.naturalOrder());
+
+
 
     public static void input() throws IOException {
         N = Integer.parseInt(br.readLine().trim());
-        ts = new TreeSet<>(comp);
+        ts = new TreeSet<>((a, b) -> {
+            int lenDiff = a.length() - b.length();
+            return (lenDiff != 0) ? lenDiff : a.compareTo(b);
+        });
+
         for (int i = 0; i < N; i++) {
             ts.add(br.readLine().trim());
         }
