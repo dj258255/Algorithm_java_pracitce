@@ -33,7 +33,6 @@ public class Solution {
         for (int i = 0; i < n; i++) {
             days[i] = Integer.parseInt(st.nextToken());
         }
-        Arrays.sort(days);
     }
     public static int solve() {
         int maxLen = 0;
