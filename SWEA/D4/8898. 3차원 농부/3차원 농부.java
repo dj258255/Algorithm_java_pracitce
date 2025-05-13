@@ -6,8 +6,6 @@ import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
-import javax.sound.midi.MidiChannel;
-
 public class Solution{
 	static BufferedReader br;
 	static BufferedWriter bw;
@@ -88,7 +86,7 @@ public class Solution{
 
 	        int big = (horse[left] > cow[i] ? left : -1);
 	        
-	        if(small != big) {
+
 		        if (small >= 0) {
 		            int dist = len + Math.abs(horse[small] - cow[i]);
 		            if (dist < min) {
@@ -108,17 +106,17 @@ public class Solution{
 		                count++;
 		            }
 		        }
-	        } else if(small == big) {
-		        if (small >= 0) {
-		            int dist = len + Math.abs(horse[small] - cow[i]);
-		            if (dist < min) {
-		                min   = dist;
-		                count = 1;
-		            } else if (dist == min) {
-		                count++;
-		            }
-		        }
-	        }
+//		        else if(small == big) {
+//			        if (small >= 0) {
+//			            int dist = len + Math.abs(horse[small] - cow[i]);
+//			            if (dist < min) {
+//			                min   = dist;
+//			                count = 1;
+//			            } else if (dist == min) {
+//			                count++;
+//			            }
+//			        }
+//		        }
 
 	    } //소 다 돌아버림
 
