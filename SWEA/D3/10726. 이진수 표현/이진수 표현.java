@@ -20,9 +20,7 @@ public class Solution{
 	
 	static String answer;
 	public static void solve() {
-        // 하위 N비트를 모두 1로 세팅한 마스크 생성
         int mask = (1 << N) - 1;  
-        // M 과 mask 를 AND 했을 때 mask 와 같으면 "ON", 아니면 "OFF"
         answer = ((M & mask) == mask) ? "ON" : "OFF";
 		
 	}
