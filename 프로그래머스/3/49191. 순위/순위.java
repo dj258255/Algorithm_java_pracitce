@@ -1,3 +1,5 @@
+import java.util.ArrayDeque;
+import java.util.Queue;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -21,8 +23,8 @@ class Solution {
         int answer = 0;
         
         for (int i = 1; i <= n; i++) {
-            int winCount = dfs(groupA, i, new boolean[n + 1]);
-            int loseCount = dfs(groupB, i, new boolean[n + 1]);
+            int winCount = bfs(groupA, i, n);
+            int loseCount = bfs(groupB, i, n);
             if (winCount + loseCount == n - 1) answer++;
         }
 
@@ -30,16 +32,25 @@ class Solution {
         return answer;
     }
     
-    public static int dfs(ArrayList<Integer>[] group , int seq , boolean[] visited){
-        int count = 0 ;
-        visited[seq] = true;
+    public static int bfs(ArrayList<Integer>[] list , int start , int n){
+        Queue<Integer> queue = new ArrayDeque<>();
+        boolean[] visited = new boolean[n+1];
+        queue.add(start);
+        visited[start] = true;
         
-        for(int next : group[seq]){
-            if(!visited[next]){
-                count += 1 + dfs(group,next,visited);
+        int count = 0;
+        while(!queue.isEmpty()){
+            int node = queue.poll();
+            for(int neighbor : list[node]){
+                if(!visited[neighbor]){
+                    visited[neighbor] = true;
+                    count++;
+                    queue.add(neighbor);
+                }
             }
         }
         
         return count;
+        
     }
 }
