@@ -42,8 +42,8 @@ class Solution {
             inDegree.put(to, inDegree.getOrDefault(to, 0) + 1);
             
             // 모든 노드를 맵에 등록
-            if (!inDegree.containsKey(from)) inDegree.put(from, 0);
-            if (!outDegree.containsKey(to)) outDegree.put(to, 0);
+            inDegree.putIfAbsent(from, 0);
+            outDegree.putIfAbsent(to, 0);
         }
     }
     
