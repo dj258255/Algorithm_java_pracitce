@@ -28,22 +28,18 @@ class Solution {
         
         // 정렬 규칙에 따라 정렬
         Collections.sort(fileInfos, new Comparator<FileInfo>() {
-            
-            public int compare(FileInfo f1, FileInfo f2) {
-                // 1. HEAD 기준 대소문자 구분 없이 사전순 정렬
+            public int compare(FileInfo f1, FileInfo f2){
                 int headCompare = f1.head.toLowerCase().compareTo(f2.head.toLowerCase());
-                if (headCompare != 0) {
+                if(headCompare != 0){
                     return headCompare;
                 }
                 
-                // 2. HEAD가 같으면 NUMBER 기준 숫자 순 정렬
-                int numberCompare = Integer.compare(f1.number, f2.number);
-                if (numberCompare != 0) {
+                int numberCompare = Integer.compare(f1.number,f2.number);
+                if(numberCompare != 0){
                     return numberCompare;
                 }
                 
-                // 3. HEAD와 NUMBER가 모두 같으면 원래 순서 유지 (안정 정렬)
-                return Integer.compare(f1.originalIndex, f2.originalIndex);
+                return Integer.compare(f1.originalIndex,f2.originalIndex);
             }
         });
         
