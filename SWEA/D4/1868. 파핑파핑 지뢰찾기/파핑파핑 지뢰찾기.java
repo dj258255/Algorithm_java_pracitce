@@ -1,3 +1,4 @@
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,7 +15,7 @@ public class Solution {
     static int N;
     static char[][] map;
 
-    //1- 누적합 맵
+    //1-누적합 맵
     static int[][] aMap;
     //누적합 맵
     static int[][] psum;
@@ -135,23 +136,23 @@ public class Solution {
         int Tc = Integer.parseInt(br.readLine().trim());
 
         for (int t = 1; t <= Tc; t++) {
-            //1.입력
+            //입력
             input();
 
-            //2.지뢰 변경
+            //지뢰 변경
             isFail();
 
-            //3. 누적합 & 카운트맵
+            //누적합 & 카운트맵
             prefix();
             count();
 
-            //4. 변수 초기화
+            //변수 초기화
             visited = new boolean[N][N];
             count = 0;
 
-            //5. BFS 탐색
+            //BFS 탐색
             bfs_form();
-            //6. 남은 칸 클
+            //남은 칸 클
             direct();
 
             sb.append('#').append(t).append(' ').append(count).append('\n');
