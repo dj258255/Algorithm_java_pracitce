@@ -1,99 +1,93 @@
+import java.util.*;
+
 class Solution {
+    static Map<String, Integer> memo;
+
     public int solution(int coin, int[] cards) {
         int n = cards.length;
+        int target = n + 1;
 
-        // ============================
-        // 카드 소유 상태 배열 (인덱스 = 카드번호 - 1)
-        // mycards: 초기 손패에 있는 카드
-        // newcards: 라운드에서 뽑았지만 아직 코인 안 쓴 카드
-        // ============================
         boolean[] mycards = new boolean[n];
-        boolean[] newcards = new boolean[n];
-
-        // 초기 손패: 전체의 1/3
         for (int i = 0; i < n / 3; i++) {
             mycards[cards[i] - 1] = true;
         }
 
-        // ============================
-        // life: 코인 0으로 낼 수 있는 페어 수 + 코인 1로 만든 페어 수
-        //   → 손패끼리 합이 n+1인 페어를 미리 세놓음
-        //   → 카드 i와 카드 n+1-i는 짝 (인덱스로는 i와 n-1-i)
-        // templife: 뽑은 카드(newcards)끼리 페어가 되는 수
-        //   → 코인 2개 써야 사용 가능한 예비 페어
-        // ============================
+        // 초기 손패끼리 페어 수
         int life = 0;
-        int templife = 0;
-
-        // 초기 손패에서 짝이 되는 페어 수 미리 계산
-        // 카드 i+1과 카드 n-i의 합 = n+1 (target)
         for (int i = 0; i < n / 2; i++) {
-            if (mycards[i] && mycards[n - i - 1]) {
-                life++;
-            }
+            if (mycards[i] && mycards[n - i - 1]) life++;
         }
 
-        // ============================
-        // 라운드 진행
-        // i번째 라운드에서 카드 2장을 뽑고, 페어 1개를 제출해야 생존
-        // 최대 라운드 수: n/3 (뽑을 카드 = n - n/3, 라운드당 2장 → (2n/3)/2 = n/3)
-        // ============================
-        for (int i = 1; i <= n / 3 + 1; i++) {
+        // 각 라운드에서 뽑는 카드로 생기는 페어 정보를 미리 계산
+        // gainLife[i]: i라운드에서 뽑은 카드 중 손패와 짝이 되는 수 (코인1짜리)
+        // gainTemp[i]: i라운드에서 뽑은 카드끼리 or 이전 뽑은 카드와 짝이 되는 수 (코인2짜리)
+        int rounds = n / 3;
+        int[] gainLife = new int[rounds + 1];
+        int[] gainTemp = new int[rounds + 1];
+        boolean[] newcards = new boolean[n];
 
-            // 모든 라운드를 통과했으면 최대 라운드 반환
-            if (i == n / 3 + 1) return i;
-
-            // 이번 라운드에 뽑는 카드 2장
+        for (int i = 1; i <= rounds; i++) {
             int card1 = cards[n / 3 + 2 * (i - 1)];
             int card2 = cards[n / 3 + 2 * (i - 1) + 1];
 
-            // ============================
-            // 뽑은 카드의 짝이 손패에 있으면 → 코인 1개로 페어 완성
-            // mycards[n - card] → card의 짝(n+1-card)이 손패에 있는지 확인
-            // ============================
-            if (mycards[n - card1] && coin > 0) {
-                coin--;
-                life++;
-            }
-            if (mycards[n - card2] && coin > 0) {
-                coin--;
-                life++;
-            }
+            if (mycards[n - card1]) gainLife[i]++;
+            if (mycards[n - card2]) gainLife[i]++;
 
-            // ============================
-            // 뽑은 카드의 짝이 이전에 뽑은 카드(newcards)에 있으면 → 예비 페어
-            // 아직 코인 안 씀, 나중에 필요하면 코인 2개로 사용
-            // 짝이 없으면 newcards에 등록해둠
-            // ============================
-            if (newcards[n - card1]) {
-                templife++;
-            } else {
-                newcards[card1 - 1] = true;
-            }
+            if (newcards[n - card1]) gainTemp[i]++;
+            else newcards[card1 - 1] = true;
 
-            if (newcards[n - card2]) {
-                templife++;
-            } else {
-                newcards[card2 - 1] = true;
-            }
-
-            // ============================
-            // life가 0인데 예비 페어가 있고 코인이 2개 이상이면
-            // 뽑은 카드끼리 페어를 코인 2개로 사용 (최후의 수단)
-            // ============================
-            if (life == 0 && coin >= 2 && templife > 0) {
-                templife--;
-                coin -= 2;
-                life++;
-            }
-
-            // 페어를 낼 수 없으면 게임 종료
-            if (life == 0) return i;
-
-            // 페어 1개 소모하고 다음 라운드로
-            life--;
+            if (newcards[n - card2]) gainTemp[i]++;
+            else newcards[card2 - 1] = true;
         }
 
-        return -1; // 도달하지 않음
+        // 탑다운 DP: dp(라운드, 코인, life, templife) → 최대 도달 라운드
+        memo = new HashMap<>();
+        return dp(1, coin, life, 0, gainLife, gainTemp, rounds);
+    }
+
+    // 현재 라운드에서 최대 몇 라운드까지 갈 수 있는지
+    static int dp(int round, int coin, int life, int templife,
+                  int[] gainLife, int[] gainTemp, int maxRound) {
+
+        if (round > maxRound) return round;
+
+        String key = round + "," + coin + "," + life + "," + templife;
+        if (memo.containsKey(key)) return memo.get(key);
+
+        // 이번 라운드에서 뽑은 카드 반영
+        int newLife = life;
+        int newTemp = templife;
+
+        // 뽑은 카드 중 손패와 짝 → 코인 1개씩 써서 life로 전환 가능
+        // 선택: 0 ~ gainLife[round]개를 코인 써서 가져감
+        int maxGain = Math.min(gainLife[round], coin);
+        newTemp += gainTemp[round];
+
+        int best = round; // 이번 라운드에서 끝나는 경우
+
+        // 손패 짝을 몇 개 코인으로 가져갈지 선택
+        for (int take = 0; take <= maxGain; take++) {
+            int curLife = newLife + take;
+            int curCoin = coin - take;
+            int curTemp = newTemp;
+
+            // templife를 코인2로 전환할지 선택
+            int maxTemp = Math.min(curTemp, curCoin / 2);
+            for (int t = 0; t <= maxTemp; t++) {
+                int finalLife = curLife + t;
+                int finalCoin = curCoin - 2 * t;
+                int finalTemp = curTemp - t;
+
+                if (finalLife <= 0) continue;
+
+                // life 1개 소모하고 다음 라운드
+                best = Math.max(best,
+                    dp(round + 1, finalCoin, finalLife - 1, finalTemp,
+                       gainLife, gainTemp, maxRound));
+            }
+        }
+
+        memo.put(key, best);
+        return best;
     }
 }
