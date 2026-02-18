@@ -1,40 +1,33 @@
-import java.util.*;
-import java.io.*;
-
 class Solution {
     public int solution(int[] stones, int k) {
         int left = 0;
         int right = 200_000_001;
         
-        //몇명이 건널 수 있는가
-        //특정 인원이 건넜을 때 연속으로 0이 되는 구간의 길이가 k 이상인지를 판별 조건으로 쓰면 돼.
         while(left < right){
             int mid = (left+right)/2;
-            int count = 0;
             boolean possible = false;
-            
-            for(int i = 0 ; i < stones.length; i++){
-                //현재가 건널 수 없으면
-                if(stones[i] - mid <= 0){
-                    count++; //건널수 없는 행 카운트
-                } else{ //건널 수 있으면
-                    count = 0;
+            int count =0;
+            for(int i = 0; i < stones.length; i++){
+                if(stones[i]-mid <= 0){ //만약 0이하면 못건너는거니 카운트
+                    count++;
+                } else{ //건널 수 있으니 초기화
+                    count=0;
                 }
-
-                if(count >= k){
-                    possible = true;
+                
+                if(count >= k){ //만약 뒤딤기 해도 못건너면
+                    possible = true; //못건넘
                     break;
                 }
             }
-
-
             
-            if(possible){ //못건넘 
-                right = mid;
-            }else{ //건널 수 있음
-                left = mid+1;
+            if(possible){ //못건너면
+                right = mid; //가용인원 줄이기
+            } else{
+                left = mid+1; //가용인원 늘리기
             }
         }
+        
+        
         return left;
     }
 }
