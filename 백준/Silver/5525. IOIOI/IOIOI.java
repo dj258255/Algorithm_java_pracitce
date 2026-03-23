@@ -21,11 +21,6 @@ public class Main {
         bw = new BufferedWriter(new OutputStreamWriter(System.out));
         st = new StringTokenizer(br.readLine().trim());
         N = Integer.parseInt(st.nextToken());
-        find = "";
-        for(int i = 0 ; i < (N*2)+1; i++){
-            if(i%2==0) find += "I";
-            else find += "O";
-        }
 
         st = new StringTokenizer(br.readLine().trim());
         M = Integer.parseInt(st.nextToken());
