@@ -33,25 +33,24 @@ public class Main {
         S = st.nextToken();
     }
 
-    public static void solve() throws IOException{
+    public static void solve() throws IOException {
+        int count = 0;
+        int result = 0;
 
-        boolean isCon;
-        int count =0;
-        while(true){
-            isCon = true;
-
-            if(S.contains(find)){
-                int index = S.indexOf(find);
+        for (int i = 0; i < M - 2; i++) {
+            if (S.charAt(i) == 'I' && S.charAt(i+1) == 'O' && S.charAt(i+2) == 'I') {
                 count++;
-                S = S.substring(index+1);
-                isCon = false;
-            }
-
-            if(isCon) {
-                bw.write("" + count);
-                break;
+                if (count == N) {
+                    result++;
+                    count--;
+                }
+                i++;
+            } else {
+                count = 0;
             }
         }
+
+        bw.write("" + result);
     }
 
 
