@@ -1,43 +1,58 @@
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.util.Arrays;
+import java.util.*;
+import java.io.*;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        String[] first = br.readLine().split(" ");
-        int N = Integer.parseInt(first[0]);
-        int M = Integer.parseInt(first[1]);
+    static BufferedReader br;
+    static BufferedWriter bw;
+    static StringTokenizer st;
 
-        int[] A = new int[N];
-        for (int i = 0; i < N; i++) {
-            A[i] = Integer.parseInt(br.readLine());
+    static int N,M;
+    static List<Integer> list;
+    public static void input() throws IOException{
+        br = new BufferedReader(new InputStreamReader(System.in));
+        bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        st = new StringTokenizer(br.readLine().trim());
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+
+        list = new ArrayList<>();
+        for(int i = 0 ; i < N; i++){
+            st = new StringTokenizer(br.readLine().trim());
+            list.add(Integer.parseInt(st.nextToken()));
         }
+        list.sort(
+                (a,b) -> a-b
+        );
 
-        Arrays.sort(A);
 
-        int minDiff = Integer.MAX_VALUE;
-        int i = 0, j = 0;
+    }
 
-        while (j < N && i < N) {
-            int diff = A[j] - A[i];
+    public static void solve() throws IOException{
+        //차이가 M 이상이면서 제일 작은 경우
+        int minDif = Integer.MAX_VALUE;
+        int i = 0, j = 1;
 
-            if (i == j) {
-                j++; // 두 포인터가 같으면 j 먼저 증가
-                continue;
-            }
-
-            if (diff < M) {
+        while (i < N && j < N) {
+            int min = list.get(j) - list.get(i);
+            //만약 M보다 크거나 같으면 갱신
+            if (min >= M) {
+                minDif = Math.min(minDif, min); // M보다 크거나 같은데 정답은 작은거니 Math.min
+                i++; //i를 늘려서 간격을 좁힘
+            } else { //M보다 작으면 간격을 넓힘
                 j++;
-            } else {
-                minDiff = Math.min(minDiff, diff);
-                i++;
             }
         }
+        bw.write(""+minDif);
 
-
-        System.out.println(minDiff);
+    }
+    
+    public static void output() throws IOException{
+        bw.flush();
+        bw.close();
+    }
+    public static void main(String[] args) throws IOException{
+        input();
+        solve();
+        output();
     }
 }
